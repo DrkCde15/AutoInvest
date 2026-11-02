@@ -1,0 +1,42 @@
+# Python
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+**/.venv/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.mypy_cache/
+**/.tox/
+.env
+.env.*
+!.env.example
+
+# Node
+**/node_modules/
+**/.next/
+**/out/
+**/.vercel/
+**/.npm/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+*.pem
+
+# Local state
+*.sqlite3
+*.db
+
+# Test/build reports
+.coverage
+coverage/
+htmlcov/
+dist/
+build/
