@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+
 def test_assets_endpoint_returns_symbol_list(client):
     response = client.get("/api/v1/assets")
     assert response.status_code == 200
@@ -12,3 +15,9 @@ def test_asset_lookup(client):
     payload = response.json()
     assert payload["name"] == "Petróleo Brasileiro SA"
     assert payload["market"] == "B3"
+    assert Decimal(str(payload["price"])) == Decimal("36.45")
+
+
+def test_unknown_asset_returns_404(client):
+    response = client.get("/api/v1/assets/UNKNOWN")
+    assert response.status_code == 404

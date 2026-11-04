@@ -37,6 +37,18 @@ uv run pytest
 uv run ruff check .
 ```
 
+### Database
+
+Apply migrations and load the demo portfolio (SQLite by default):
+
+```bash
+cd backend
+uv run alembic upgrade head
+uv run python -m app.database.seed
+```
+
+The API reads assets, prices, positions, and orders from the database. If the demo portfolio has not been seeded, portfolio and paper-trading endpoints return HTTP 503.
+
 ### Frontend
 
 ```bash

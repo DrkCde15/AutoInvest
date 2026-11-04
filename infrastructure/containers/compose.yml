@@ -1,3 +1,9 @@
+x-backend: &backend
+  build:
+    context: ../../backend
+    dockerfile: Containerfile
+  image: autoinvest-backend:local
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -25,10 +31,18 @@ services:
       timeout: 3s
       retries: 10
 
+  migrations:
+    <<: *backend
+    command: ["sh", "-c", "alembic upgrade head && python -m app.database.seed"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-autoinvest}:${POSTGRES_PASSWORD:-autoinvest}@postgres:5432/${POSTGRES_DB:-autoinvest}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   backend:
-    build:
-      context: ../../backend
-      dockerfile: Containerfile
+    <<: *backend
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-autoinvest}:${POSTGRES_PASSWORD:-autoinvest}@postgres:5432/${POSTGRES_DB:-autoinvest}
       REDIS_URL: redis://redis:6379/0
@@ -38,6 +52,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
     healthcheck:
