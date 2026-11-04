@@ -52,6 +52,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build backend image
-        run: docker build -t autoinvest-backend:ci ./backend
+        run: docker build -f ./backend/Containerfile -t autoinvest-backend:ci ./backend
       - name: Build frontend image
-        run: docker build -t autoinvest-frontend:ci ./frontend
+        run: docker build -f ./frontend/Containerfile -t autoinvest-frontend:ci ./frontend
