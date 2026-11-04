@@ -1,3 +1,4 @@
+import AuthPanel from "@/components/AuthPanel";
 import PaperTradingToggle from "@/components/PaperTradingToggle";
 
 const marketSummary = [
@@ -23,14 +24,17 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-7xl px-6 py-10">
-        <header className="mb-8 flex items-center justify-between border-b border-slate-800 pb-6">
+        <header className="mb-8 flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">
               AutoInvest Platform
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-white">Investment command center</h1>
           </div>
-          <PaperTradingToggle />
+          <div className="flex flex-col items-start gap-4 sm:items-end">
+            <AuthPanel />
+            <PaperTradingToggle />
+          </div>
         </header>
 
         <section className="grid gap-4 md:grid-cols-4">

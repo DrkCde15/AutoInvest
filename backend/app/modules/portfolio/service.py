@@ -5,28 +5,12 @@ from decimal import ROUND_HALF_UP, Decimal
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
-from app.database.models import Portfolio, Position, User
+from app.database.models import Portfolio, Position
 from app.modules.market_data.service import get_latest_prices
 from app.modules.portfolio.schemas import Holding, PortfolioResponse
 
 MONEY_QUANTUM = Decimal("0.01")
 PERCENT_QUANTUM = Decimal("0.01")
-
-
-class PortfolioNotFoundError(Exception):
-    """Raised when the demo portfolio has not been seeded yet."""
-
-
-def get_demo_portfolio(db: Session) -> Portfolio:
-    portfolio = db.scalar(
-        select(Portfolio).join(User).where(User.email == settings.demo_user_email)
-    )
-    if portfolio is None:
-        raise PortfolioNotFoundError(
-            "Demo portfolio not found. Run `python -m app.database.seed` before using the API."
-        )
-    return portfolio
 
 
 def get_portfolio(db: Session, portfolio: Portfolio) -> PortfolioResponse:

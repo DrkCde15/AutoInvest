@@ -1,4 +1,9 @@
+from decimal import Decimal
+
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_DEV_JWT_SECRET = "dev-only-change-me-with-at-least-32-bytes"
 
 
 class Settings(BaseSettings):
@@ -9,7 +14,14 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     api_prefix: str = "/api/v1"
     cors_origins: list[str] = ["http://localhost:3000"]
+
+    jwt_secret_key: str = DEFAULT_DEV_JWT_SECRET
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60
+
     demo_user_email: str = "demo@autoinvest.local"
+    demo_user_password: str = "demo1234"
+    initial_cash_balance: Decimal = Decimal("10000.00")
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -17,6 +29,14 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+    @model_validator(mode="after")
+    def validate_production_secrets(self) -> Settings:
+        if self.environment not in {"development", "test"} and (
+            self.jwt_secret_key == DEFAULT_DEV_JWT_SECRET
+        ):
+            raise ValueError("JWT_SECRET_KEY must be set when ENVIRONMENT is not development")
+        return self
 
 
 settings = Settings()

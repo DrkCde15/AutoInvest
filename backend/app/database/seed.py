@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.security import hash_password
 from app.database.models import Asset, MarketPrice, Portfolio, Position, User
 
 ASSET_SEED = [
@@ -92,9 +93,15 @@ def seed(db: Session) -> None:
 
     user = db.scalar(select(User).where(User.email == settings.demo_user_email))
     if user is None:
-        user = User(email=settings.demo_user_email, full_name="Demo Investor")
+        user = User(
+            email=settings.demo_user_email,
+            full_name="Demo Investor",
+            hashed_password=hash_password(settings.demo_user_password),
+        )
         db.add(user)
         db.flush()
+    elif not user.hashed_password:
+        user.hashed_password = hash_password(settings.demo_user_password)
 
     portfolio = db.scalar(select(Portfolio).where(Portfolio.user_id == user.id))
     if portfolio is None:

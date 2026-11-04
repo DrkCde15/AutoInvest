@@ -6,7 +6,7 @@ The backend persists its domain data with SQLAlchemy 2.0 and evolves the schema 
 
 | Table | Purpose | Key constraints |
 |---|---|---|
-| `users` | Application users | unique email |
+| `users` | Application users | unique email, Argon2 password hash |
 | `portfolios` | One portfolio per user, cash balance, paper-trading flag | unique `user_id`, FK to `users` |
 | `assets` | Tradable instruments | primary key `symbol` |
 | `market_prices` | Price history per asset | FK to `assets`, indexed by symbol and timestamp |

@@ -1,8 +1,8 @@
 from decimal import Decimal
 
 
-def test_portfolio_summary_is_computed_from_persisted_positions(client):
-    response = client.get("/api/v1/portfolio")
+def test_portfolio_summary_is_computed_from_persisted_positions(client, auth_headers):
+    response = client.get("/api/v1/portfolio", headers=auth_headers)
     assert response.status_code == 200
     payload = response.json()
 

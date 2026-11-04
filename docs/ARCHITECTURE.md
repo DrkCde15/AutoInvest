@@ -6,7 +6,7 @@ AutoInvest follows a modular monolith architecture designed for future orchestra
 
 - `backend/app/api`: HTTP endpoints and transport contracts.
 - `backend/app/core`: cross-cutting configuration, logging, and security concerns.
-- `backend/app/database`: SQLAlchemy base setup and connection factory.
+- `backend/app/database`: SQLAlchemy models, session factory, seed, and Alembic migrations.
 - `backend/app/modules`: domain modules for auth, users, portfolio, assets, strategy, and trading.
 - `backend/app/integrations`: future third-party adapters for market data and broker APIs.
 - `frontend/src`: Next.js client application.
@@ -16,7 +16,7 @@ AutoInvest follows a modular monolith architecture designed for future orchestra
 
 The MVP includes the following module boundaries:
 
-- `auth`: authentication and session simulation.
+- `auth`: JWT authentication, registration, and password hashing.
 - `users`: profile and risk preference metadata.
 - `assets`: market assets and instrument metadata.
 - `portfolio`: allocation and performance summaries.

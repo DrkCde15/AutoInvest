@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+import { AUTH_CHANGED_EVENT, authHeaders, getAccessToken } from "@/lib/auth";
 
 type PaperTradingStatus = {
   enabled: boolean;
@@ -12,43 +14,63 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function PaperTradingToggle() {
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [hasSession, setHasSession] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const loadStatus = useCallback(async () => {
+    if (!getAccessToken()) {
+      setHasSession(false);
+      setEnabled(null);
+      setError(null);
+      return;
+    }
+
+    setHasSession(true);
+    try {
+      const response = await fetch(`${apiUrl}/api/v1/paper-trading/status`, {
+        headers: authHeaders(),
+      });
+      if (response.status === 401) {
+        setEnabled(null);
+        setError("Your session expired. Sign in again.");
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(`Could not load paper-trading status (${response.status}).`);
+      }
+
+      const status = (await response.json()) as PaperTradingStatus;
+      setEnabled(status.enabled);
+      setError(null);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Could not load paper-trading status.",
+      );
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function loadStatus() {
-      try {
-        const response = await fetch(`${apiUrl}/api/v1/paper-trading/status`);
-        if (!response.ok) {
-          throw new Error(`Could not load paper-trading status (${response.status}).`);
-        }
-
-        const status = (await response.json()) as PaperTradingStatus;
-        if (isMounted) {
-          setEnabled(status.enabled);
-          setError(null);
-        }
-      } catch (requestError) {
-        if (isMounted) {
-          setError(
-            requestError instanceof Error
-              ? requestError.message
-              : "Could not load paper-trading status.",
-          );
-        }
+    async function refresh() {
+      if (isMounted) {
+        await loadStatus();
       }
     }
 
-    void loadStatus();
+    void refresh();
+    window.addEventListener(AUTH_CHANGED_EVENT, refresh);
     return () => {
       isMounted = false;
+      window.removeEventListener(AUTH_CHANGED_EVENT, refresh);
     };
-  }, []);
+  }, [loadStatus]);
 
   async function toggleTrading() {
-    if (enabled === null || isSaving) {
+    if (enabled === null || isSaving || !hasSession) {
       return;
     }
 
@@ -57,9 +79,14 @@ export default function PaperTradingToggle() {
     try {
       const response = await fetch(`${apiUrl}/api/v1/paper-trading/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ enabled: !enabled }),
       });
+      if (response.status === 401) {
+        setEnabled(null);
+        setHasSession(false);
+        throw new Error("Your session expired. Sign in again.");
+      }
       if (!response.ok) {
         throw new Error(`Could not update paper-trading status (${response.status}).`);
       }
@@ -82,7 +109,7 @@ export default function PaperTradingToggle() {
       <button
         type="button"
         aria-pressed={enabled ?? false}
-        disabled={enabled === null || isSaving}
+        disabled={!hasSession || enabled === null || isSaving}
         onClick={toggleTrading}
         className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-wait disabled:opacity-60 ${
           enabled
@@ -90,13 +117,15 @@ export default function PaperTradingToggle() {
             : "border-amber-500 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
         }`}
       >
-        {enabled === null
-          ? "Loading paper trading..."
-          : isSaving
-            ? "Updating..."
-            : enabled
-              ? "Simulated trading active"
-              : "Simulated trading paused"}
+        {!hasSession
+          ? "Sign in to manage paper trading"
+          : enabled === null
+            ? "Loading paper trading..."
+            : isSaving
+              ? "Updating..."
+              : enabled
+                ? "Simulated trading active"
+                : "Simulated trading paused"}
       </button>
       {error && (
         <p role="alert" className="max-w-xs text-right text-xs text-rose-300">

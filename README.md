@@ -47,7 +47,21 @@ uv run alembic upgrade head
 uv run python -m app.database.seed
 ```
 
-The API reads assets, prices, positions, and orders from the database. If the demo portfolio has not been seeded, portfolio and paper-trading endpoints return HTTP 503.
+The API reads assets, prices, positions, and orders from the database. If the demo portfolio has not been seeded, the demo account cannot sign in.
+
+### Authentication
+
+Protected endpoints require a JWT. The seed creates a development-only demo account, configurable through `DEMO_USER_EMAIL` and `DEMO_USER_PASSWORD` (defaults: `demo@autoinvest.local` / `demo1234`).
+
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=demo@autoinvest.local&password=demo1234"
+```
+
+Send the returned token as `Authorization: Bearer <access_token>`. Create additional accounts with `POST /api/v1/auth/register` (JSON with `email`, `password`, and `full_name`); each account gets its own isolated portfolio.
+
+Set `JWT_SECRET_KEY` to a long random value outside development. The API refuses to start in non-development environments while the default development secret is in use.
 
 ### Frontend
 
@@ -72,7 +86,7 @@ npm run build
 podman compose -f infrastructure/containers/compose.yml up --build
 ```
 
-The stack exposes the API on `http://localhost:8000` and the frontend on `http://localhost:3000`. Postgres credentials can be overridden with `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`.
+The stack exposes the API on `http://localhost:8000` and the frontend on `http://localhost:3000`. Postgres credentials can be overridden with `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`. Authentication settings can be overridden with `JWT_SECRET_KEY`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`, and `INITIAL_CASH_BALANCE`.
 
 ## Safety and constraints
 

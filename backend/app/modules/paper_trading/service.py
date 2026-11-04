@@ -127,6 +127,6 @@ def execute_order(
         price=price,
         notional=notional,
         status=order.status,
-        message="Order accepted in paper-trading mode. No assets or cash were moved.",
+        message="Order simulated and applied to the paper portfolio. No real assets or cash were moved.",
         simulated_executed=True,
     )
