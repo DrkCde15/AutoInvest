@@ -9,7 +9,7 @@ The backend persists its domain data with SQLAlchemy 2.0 and evolves the schema 
 | `users` | Application users | unique email, Argon2 password hash |
 | `portfolios` | One portfolio per user, cash balance, paper-trading flag | unique `user_id`, FK to `users` |
 | `assets` | Tradable instruments | primary key `symbol` |
-| `market_prices` | Price history per asset | FK to `assets`, indexed by symbol and timestamp |
+| `market_prices` | Price history per asset, populated by the market data worker | FK to `assets`, indexed by symbol and timestamp |
 | `positions` | Current holdings per portfolio | unique (`portfolio_id`, `asset_symbol`) |
 | `orders` | Simulated order log | FK to portfolio and asset, check on `side` |
 

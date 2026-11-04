@@ -81,7 +81,7 @@ def seed(db: Session) -> None:
             .order_by(MarketPrice.quoted_at.desc(), MarketPrice.id.desc())
             .limit(1)
         )
-        if latest_price is None or latest_price.price != item["price"]:
+        if latest_price is None:
             db.add(
                 MarketPrice(
                     asset_symbol=item["symbol"],

@@ -56,7 +56,7 @@ services:
       INITIAL_CASH_BALANCE: ${INITIAL_CASH_BALANCE:-10000.00}
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-autoinvest}:${POSTGRES_PASSWORD:-autoinvest}@postgres:5432/${POSTGRES_DB:-autoinvest}
       REDIS_URL: redis://redis:6379/0
-      CORS_ORIGINS: '["http://localhost:3000"]'
+      CORS_ORIGINS: '["http://localhost:3000", "http://127.0.0.1:3000"]'
     depends_on:
       postgres:
         condition: service_healthy
@@ -71,6 +71,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  market-data:
+    <<: *backend
+    command: ["python", "-m", "app.modules.market_data.worker"]
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-only-change-me-with-at-least-32-bytes}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-mock}
+      MARKET_DATA_REFRESH_SECONDS: ${MARKET_DATA_REFRESH_SECONDS:-300}
+      MARKET_DATA_RETENTION_DAYS: ${MARKET_DATA_RETENTION_DAYS:-30}
+      BRAPI_TOKEN: ${BRAPI_TOKEN:-}
+      BRAPI_BASE_URL: ${BRAPI_BASE_URL:-https://brapi.dev/api}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-autoinvest}:${POSTGRES_PASSWORD:-autoinvest}@postgres:5432/${POSTGRES_DB:-autoinvest}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    restart: unless-stopped
 
   frontend:
     build:

@@ -17,6 +17,7 @@ The MVP is intentionally limited and safe by default.
 - `JWT_SECRET_KEY` must be replaced outside development. The application refuses to start in non-development environments while the default development secret is in use.
 - `DEMO_USER_PASSWORD` changes the seeded demo credential. Demo data is for local development only.
 - `ACCESS_TOKEN_EXPIRE_MINUTES` controls token lifetime.
+- `BRAPI_TOKEN` is read from the environment by the market data worker and is never exposed by the API.
 
 ## Known tradeoffs
 

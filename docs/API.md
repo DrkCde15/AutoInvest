@@ -17,9 +17,11 @@ The seed creates a development-only demo account using `DEMO_USER_EMAIL` and `DE
 - `GET /api/v1/health` — health check (public)
 - `GET /api/v1/assets` — asset universe (public)
 - `GET /api/v1/assets/{symbol}` — single asset lookup (public)
+- `GET /api/v1/assets/{symbol}/prices?limit=100` — stored price history, newest first (public)
 - `GET /api/v1/portfolio` — authenticated user portfolio summary
 - `GET /api/v1/paper-trading/status` — paper trading mode state for the authenticated user
 - `PATCH /api/v1/paper-trading/status` — enable or pause paper trading with `{"enabled": true|false}`
+- `GET /api/v1/paper-trading/orders?limit=50` — recent simulated order history for the authenticated portfolio
 - `POST /api/v1/paper-trading/orders` — simulated order placement with `{"symbol": "...", "side": "buy|sell", "quantity": 1}`
 
 ## Notes
@@ -27,3 +29,7 @@ The seed creates a development-only demo account using `DEMO_USER_EMAIL` and `DE
 The API intentionally does not allow real order execution or actual money movement. The order semantics are simulation-only and align with the paper-trading requirement. When paper trading is paused, new simulated orders return HTTP 409.
 
 Orders are persisted in the database, and buy/sell operations update the portfolio cash balance and positions atomically. Invalid symbols, insufficient cash, and insufficient positions return HTTP 400. Each user has an isolated portfolio; a newly registered account starts with the configured `INITIAL_CASH_BALANCE` and no positions.
+
+## Market data
+
+Quotes are ingested by a background worker into `market_prices`. The provider is selected with `MARKET_DATA_PROVIDER`: `mock` (local simulated movements, default) or `brapi` (B3 quotes from brapi.dev). Historical points are exposed at `GET /api/v1/assets/{symbol}/prices`.

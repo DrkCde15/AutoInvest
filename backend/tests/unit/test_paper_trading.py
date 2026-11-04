@@ -84,6 +84,59 @@ def test_sell_order_updates_cash_and_position(client, auth_headers):
     assert _decimal(petr4["quantity"]) == Decimal("70")
 
 
+def test_order_history_returns_orders_for_current_portfolio(client, auth_headers):
+    order = client.post(
+        "/api/v1/paper-trading/orders",
+        headers=auth_headers,
+        json={"symbol": "PETR4", "side": "buy", "quantity": 2},
+    )
+    assert order.status_code == 200
+
+    response = client.get("/api/v1/paper-trading/orders", headers=auth_headers)
+
+    assert response.status_code == 200
+    history = response.json()
+    assert len(history) == 1
+    assert history[0]["order_id"] == order.json()["order_id"]
+    assert history[0]["symbol"] == "PETR4"
+    assert history[0]["side"] == "buy"
+    assert history[0]["simulated_executed"] is True
+    assert history[0]["created_at"]
+
+
+def test_order_history_is_scoped_to_authenticated_portfolio(client, auth_headers):
+    first_order = client.post(
+        "/api/v1/paper-trading/orders",
+        headers=auth_headers,
+        json={"symbol": "PETR4", "side": "buy", "quantity": 1},
+    )
+    assert first_order.status_code == 200
+
+    register = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "order-history@example.com",
+            "password": "strong-password",
+            "full_name": "Order History",
+        },
+    )
+    assert register.status_code == 201
+    login = client.post(
+        "/api/v1/auth/login",
+        data={
+            "username": "order-history@example.com",
+            "password": "strong-password",
+        },
+    )
+    assert login.status_code == 200
+    other_headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+
+    response = client.get("/api/v1/paper-trading/orders", headers=other_headers)
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
 def test_unknown_asset_is_rejected(client, auth_headers):
     response = client.post(
         "/api/v1/paper-trading/orders",

@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from app.shared.schemas.common import BaseSchema
@@ -11,3 +12,9 @@ class Asset(BaseSchema):
     change_pct: Decimal
     market: str
     currency: str = "BRL"
+
+
+class PricePoint(BaseSchema):
+    price: Decimal
+    change_pct: Decimal
+    quoted_at: datetime

@@ -2,15 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { AUTH_CHANGED_EVENT, authHeaders, getAccessToken } from "@/lib/auth";
-
-type PaperTradingStatus = {
-  enabled: boolean;
-  mode: string;
-  message: string;
-};
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import {
+  ApiError,
+  getPaperTradingStatus,
+  setPaperTradingEnabled,
+} from "@/lib/api";
+import { AUTH_CHANGED_EVENT, getAccessToken } from "@/lib/auth";
+import { notifyPaperTradingChanged } from "@/lib/events";
 
 export default function PaperTradingToggle() {
   const [enabled, setEnabled] = useState<boolean | null>(null);
@@ -28,26 +26,17 @@ export default function PaperTradingToggle() {
 
     setHasSession(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/paper-trading/status`, {
-        headers: authHeaders(),
-      });
-      if (response.status === 401) {
-        setEnabled(null);
-        setError("Your session expired. Sign in again.");
-        return;
-      }
-      if (!response.ok) {
-        throw new Error(`Could not load paper-trading status (${response.status}).`);
-      }
-
-      const status = (await response.json()) as PaperTradingStatus;
+      const status = await getPaperTradingStatus();
       setEnabled(status.enabled);
       setError(null);
     } catch (requestError) {
+      setEnabled(null);
       setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Could not load paper-trading status.",
+        requestError instanceof ApiError && requestError.status === 401
+          ? "Your session expired. Sign in again."
+          : requestError instanceof Error
+            ? requestError.message
+            : "Could not load paper-trading status.",
       );
     }
   }, []);
@@ -77,23 +66,14 @@ export default function PaperTradingToggle() {
     setIsSaving(true);
     setError(null);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/paper-trading/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ enabled: !enabled }),
-      });
-      if (response.status === 401) {
+      const status = await setPaperTradingEnabled(!enabled);
+      setEnabled(status.enabled);
+      notifyPaperTradingChanged(status.enabled);
+    } catch (requestError) {
+      if (requestError instanceof ApiError && requestError.status === 401) {
         setEnabled(null);
         setHasSession(false);
-        throw new Error("Your session expired. Sign in again.");
       }
-      if (!response.ok) {
-        throw new Error(`Could not update paper-trading status (${response.status}).`);
-      }
-
-      const status = (await response.json()) as PaperTradingStatus;
-      setEnabled(status.enabled);
-    } catch (requestError) {
       setError(
         requestError instanceof Error
           ? requestError.message
@@ -113,8 +93,8 @@ export default function PaperTradingToggle() {
         onClick={toggleTrading}
         className={`rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-wait disabled:opacity-60 ${
           enabled
-            ? "border-cyan-500 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20"
-            : "border-amber-500 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+            ? "border-[#356A9A] bg-[#356A9A]/10 text-[#356A9A] hover:bg-[#356A9A]/20"
+            : "border-amber-500 bg-amber-500/10 text-amber-900 hover:bg-amber-500/20"
         }`}
       >
         {!hasSession
@@ -128,7 +108,7 @@ export default function PaperTradingToggle() {
                 : "Simulated trading paused"}
       </button>
       {error && (
-        <p role="alert" className="max-w-xs text-right text-xs text-rose-300">
+        <p role="alert" className="max-w-xs text-right text-xs text-rose-800">
           {error}
         </p>
       )}

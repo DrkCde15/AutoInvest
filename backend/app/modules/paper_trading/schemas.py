@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Literal
 
@@ -24,6 +25,20 @@ class SimulatedOrderResponse(BaseSchema):
     status: str
     message: str
     simulated_executed: bool
+
+
+class PaperOrderHistoryItem(BaseSchema):
+    order_id: str
+    symbol: str
+    side: str
+    quantity: Decimal
+    price: Decimal
+    notional: Decimal
+    order_type: str
+    strategy_name: str | None
+    status: str
+    simulated_executed: bool
+    created_at: datetime
 
 
 class PaperTradingStatusResponse(BaseSchema):

@@ -8,8 +8,8 @@ AutoInvest follows a modular monolith architecture designed for future orchestra
 - `backend/app/core`: cross-cutting configuration, logging, and security concerns.
 - `backend/app/database`: SQLAlchemy models, session factory, seed, and Alembic migrations.
 - `backend/app/modules`: domain modules for auth, users, portfolio, assets, strategy, and trading.
-- `backend/app/integrations`: future third-party adapters for market data and broker APIs.
-- `frontend/src`: Next.js client application.
+- `backend/app/integrations`: market data providers (`mock`, `brapi`) and future third-party broker adapters.
+- `frontend/src`: Next.js client application that consumes the API for market data, portfolio state, and simulated orders.
 - `data-engineering`: ETL-ready data pipelines.
 
 ## Domain modules
@@ -22,6 +22,7 @@ The MVP includes the following module boundaries:
 - `portfolio`: allocation and performance summaries.
 - `trading`: execution strategy orchestration.
 - `paper_trading`: simulated order workflow without real-money flow.
+- `market_data`: quote ingestion, latest prices, and price history.
 - `risk`: portfolio risk and scenario analysis.
 - `audit`: system event history and compliance traces.
 

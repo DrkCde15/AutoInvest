@@ -8,7 +8,11 @@ from sqlalchemy.orm import Session
 from app.database.models import Asset, Portfolio, Position
 from app.database.models import Order as OrderModel
 from app.modules.market_data.service import get_latest_price
-from app.modules.paper_trading.schemas import SimulatedOrderRequest, SimulatedOrderResponse
+from app.modules.paper_trading.schemas import (
+    PaperOrderHistoryItem,
+    SimulatedOrderRequest,
+    SimulatedOrderResponse,
+)
 
 MONEY_QUANTUM = Decimal("0.01")
 PRICE_QUANTUM = Decimal("0.000001")
@@ -27,6 +31,33 @@ def set_paper_trading_enabled(db: Session, portfolio: Portfolio, enabled: bool) 
     db.commit()
     db.refresh(portfolio)
     return portfolio.paper_trading_enabled
+
+
+def list_orders(
+    db: Session, portfolio: Portfolio, *, limit: int = 50
+) -> list[PaperOrderHistoryItem]:
+    orders = db.scalars(
+        select(OrderModel)
+        .where(OrderModel.portfolio_id == portfolio.id)
+        .order_by(OrderModel.created_at.desc(), OrderModel.id.desc())
+        .limit(limit)
+    ).all()
+    return [
+        PaperOrderHistoryItem(
+            order_id=str(order.id),
+            symbol=order.asset_symbol,
+            side=order.side,
+            quantity=order.quantity,
+            price=order.executed_price,
+            notional=order.notional,
+            order_type=order.order_type,
+            strategy_name=order.strategy_name,
+            status=order.status,
+            simulated_executed=order.simulated_executed,
+            created_at=order.created_at,
+        )
+        for order in orders
+    ]
 
 
 def execute_order(

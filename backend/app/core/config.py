@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,7 +14,10 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./autoinvest.db"
     redis_url: str = "redis://localhost:6379/0"
     api_prefix: str = "/api/v1"
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
 
     jwt_secret_key: str = DEFAULT_DEV_JWT_SECRET
     jwt_algorithm: str = "HS256"
@@ -22,6 +26,12 @@ class Settings(BaseSettings):
     demo_user_email: str = "demo@autoinvest.local"
     demo_user_password: str = "demo1234"
     initial_cash_balance: Decimal = Decimal("10000.00")
+
+    market_data_provider: Literal["mock", "brapi"] = "mock"
+    market_data_refresh_seconds: int = 300
+    market_data_retention_days: int = 30
+    brapi_token: str | None = None
+    brapi_base_url: str = "https://brapi.dev/api"
 
     model_config = SettingsConfigDict(
         env_file=".env",

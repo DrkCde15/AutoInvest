@@ -1,122 +1,113 @@
-import AuthPanel from "@/components/AuthPanel";
-import PaperTradingToggle from "@/components/PaperTradingToggle";
+import Link from "next/link";
+import type { Metadata } from "next";
 
-const marketSummary = [
-  { label: "NASDAQ", value: "18,420", delta: "+1.24%" },
-  { label: "B3", value: "124,800", delta: "+0.82%" },
-  { label: "BTC", value: "$48.3k", delta: "+2.68%" },
-  { label: "10Y Treasury", value: "4.38%", delta: "+0.12%" },
-];
+import LandingMarketPanel from "@/components/LandingMarketPanel";
 
-const holdings = [
-  { symbol: "PETR4", quantity: 80, price: 36.45, allocation: 31.2 },
-  { symbol: "HGLG11", quantity: 22, price: 98.2, allocation: 23.1 },
-  { symbol: "IVVB11", quantity: 15, price: 281.1, allocation: 45.1 },
-];
+export const metadata: Metadata = {
+  title: "AutoInvest | Invista com clareza",
+  description:
+    "Acompanhe ativos, organize sua carteira e experimente operações simuladas no AutoInvest.",
+};
 
-const strategyCards = [
-  { name: "Mean Reversion", status: "Live", sharpe: 1.48 },
-  { name: "Momentum Breakout", status: "Paper", sharpe: 1.21 },
-  { name: "Macro Basket", status: "Backtest", sharpe: 1.63 },
+const capabilities = [
+  {
+    title: "Mercado",
+    detail: "Ativos e histórico de cotações disponíveis na plataforma",
+  },
+  {
+    title: "Carteira",
+    detail: "Saldo e posições da sua conta simulada",
+  },
+  {
+    title: "Ordens",
+    detail: "Compra e venda simuladas, sem conexão com corretoras",
+  },
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <header className="mb-8 flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-400">
-              AutoInvest Platform
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-white">Investment command center</h1>
+    <main className="min-h-screen bg-[#F1F4F8] text-[#1A2E45]">
+      <section className="mx-auto grid max-w-7xl gap-12 px-6 py-14 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:py-24">
+        <div className="max-w-2xl">
+          <p className="text-sm font-medium text-[#356A9A]">
+            Uma plataforma para acompanhar e aprender
+          </p>
+          <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-[-0.04em] text-[#1A2E45] sm:text-5xl lg:text-[4.25rem]">
+            Seu dinheiro merece uma visão mais clara.
+          </h1>
+          <p className="mt-6 max-w-xl text-base leading-7 text-[#526477] sm:text-lg">
+            Acompanhe ativos, entenda sua carteira e experimente operações em
+            ambiente simulado — sem colocar capital real em risco.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/cadastro"
+              className="rounded-lg bg-[#356A9A] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#24547C]"
+            >
+              Criar minha conta
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-lg border border-[#AEBBCC] px-5 py-3 text-sm font-semibold text-[#304258] transition-colors hover:border-[#356A9A] hover:text-[#356A9A]"
+            >
+              Já tenho conta
+            </Link>
           </div>
-          <div className="flex flex-col items-start gap-4 sm:items-end">
-            <AuthPanel />
-            <PaperTradingToggle />
-          </div>
-        </header>
+          <p className="mt-5 max-w-lg border-l-2 border-[#91B8D8] pl-3 text-sm leading-6 text-[#526477]">
+            O AutoInvest não envia ordens reais, não acessa contas bancárias e
+            não movimenta dinheiro.
+          </p>
+        </div>
 
-        <section className="grid gap-4 md:grid-cols-4">
-          {marketSummary.map((item) => (
-            <div key={item.label} className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-lg shadow-slate-950/30">
-              <p className="text-sm text-slate-400">{item.label}</p>
-              <div className="mt-3 flex items-end justify-between">
-                <span className="text-2xl font-semibold text-white">{item.value}</span>
-                <span className="text-sm font-medium text-emerald-400">{item.delta}</span>
-              </div>
-            </div>
-          ))}
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">Portfolio overview</h2>
-              <span className="text-sm text-emerald-400">+12.84% YTD</span>
-            </div>
-
-            <div className="mb-6 grid grid-cols-3 gap-4 text-sm text-slate-300">
-              <div className="rounded-xl bg-slate-800 p-4">
-                <p className="text-slate-400">Total value</p>
-                <p className="mt-2 text-2xl font-semibold text-white">R$ 46.7k</p>
-              </div>
-              <div className="rounded-xl bg-slate-800 p-4">
-                <p className="text-slate-400">Cash</p>
-                <p className="mt-2 text-2xl font-semibold text-white">R$ 15k</p>
-              </div>
-              <div className="rounded-xl bg-slate-800 p-4">
-                <p className="text-slate-400">Exposure</p>
-                <p className="mt-2 text-2xl font-semibold text-white">72%</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {holdings.map((holding) => (
-                <div key={holding.symbol} className="flex items-center justify-between rounded-2xl bg-slate-800/70 p-4">
-                  <div>
-                    <p className="font-medium text-white">{holding.symbol}</p>
-                    <p className="text-sm text-slate-400">{holding.quantity} positions</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white">R$ {holding.price.toFixed(2)}</p>
-                    <p className="text-xs text-emerald-400">{holding.allocation}% allocation</p>
-                  </div>
+        <div className="grid gap-5 sm:grid-cols-[1fr_0.92fr] sm:items-start">
+          <LandingMarketPanel />
+          <section className="border-t-2 border-[#356A9A] bg-[#E7EDF3] px-5 py-5 sm:mt-12">
+            <h2 className="text-base font-semibold text-[#1A2E45]">
+              O que você encontra
+            </h2>
+            <dl className="mt-3 divide-y divide-[#CDD6E1]">
+              {capabilities.map((capability) => (
+                <div key={capability.title} className="py-3">
+                  <dt className="text-sm font-semibold text-[#356A9A]">
+                    {capability.title}
+                  </dt>
+                  <dd className="mt-1 text-xs leading-5 text-[#526477]">
+                    {capability.detail}
+                  </dd>
                 </div>
               ))}
-            </div>
+            </dl>
+          </section>
+        </div>
+      </section>
+
+      <section className="border-y border-[#D7DFE8] bg-[#FDFEFF]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[0.8fr_1.2fr] md:items-center">
+          <h2 className="max-w-sm text-2xl font-semibold leading-tight tracking-[-0.03em] text-[#1A2E45]">
+            Uma conta para testar ideias antes de assumir riscos.
+          </h2>
+          <div className="grid gap-5 sm:grid-cols-3">
+            <p className="text-sm leading-6 text-[#526477]">
+              <span className="mb-1 block font-semibold text-[#1A2E45]">
+                Dados visíveis
+              </span>
+              Consulte os ativos e as cotações que a plataforma disponibiliza.
+            </p>
+            <p className="text-sm leading-6 text-[#526477]">
+              <span className="mb-1 block font-semibold text-[#1A2E45]">
+                Carteira isolada
+              </span>
+              Seu saldo simulado e suas posições pertencem à sua conta.
+            </p>
+            <p className="text-sm leading-6 text-[#526477]">
+              <span className="mb-1 block font-semibold text-[#1A2E45]">
+                Sem execução real
+              </span>
+              Cada ordem altera apenas os dados da carteira de demonstração.
+            </p>
           </div>
-
-          <aside className="space-y-6">
-            <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="text-lg font-semibold text-white">Strategy engine</h2>
-              <div className="mt-4 space-y-3">
-                {strategyCards.map((strategy) => (
-                  <div key={strategy.name} className="rounded-2xl border border-slate-700 bg-slate-800/60 p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-white">{strategy.name}</p>
-                      <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300">
-                        {strategy.status}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-slate-400">Sharpe: {strategy.sharpe}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-cyan-500/10 to-slate-900 p-6">
-              <h2 className="text-lg font-semibold text-white">Paper trading</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-300">
-                All orders are executed in a simulated environment. No real money or broker integration is enabled in this MVP.
-              </p>
-              <button className="mt-5 rounded-full bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400">
-                Review order book
-              </button>
-            </div>
-          </aside>
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

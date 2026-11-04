@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.portfolio import get_current_portfolio
 from app.database.models import Portfolio
 from app.database.session import get_db_session
 from app.modules.paper_trading.schemas import (
+    PaperOrderHistoryItem,
     PaperTradingStatusResponse,
     PaperTradingToggleRequest,
     SimulatedOrderRequest,
@@ -14,6 +15,7 @@ from app.modules.paper_trading.service import (
     PaperTradingDisabledError,
     execute_order,
     is_paper_trading_enabled,
+    list_orders,
     set_paper_trading_enabled,
 )
 
@@ -42,6 +44,15 @@ def update_paper_trading_status(
 ) -> PaperTradingStatusResponse:
     enabled = set_paper_trading_enabled(db, portfolio, request.enabled)
     return PaperTradingStatusResponse(enabled=enabled, message=_status_message(enabled))
+
+
+@router.get("/orders", response_model=list[PaperOrderHistoryItem])
+def get_order_history(
+    limit: int = Query(default=50, ge=1, le=100),
+    db: Session = Depends(get_db_session),
+    portfolio: Portfolio = Depends(get_current_portfolio),
+) -> list[PaperOrderHistoryItem]:
+    return list_orders(db, portfolio, limit=limit)
 
 
 @router.post("/orders", response_model=SimulatedOrderResponse)
