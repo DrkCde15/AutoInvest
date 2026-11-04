@@ -21,28 +21,46 @@ AutoInvest is an MVP platform for investment tracking, market analysis, portfoli
 
 ### Backend
 
+The backend uses [uv](https://docs.astral.sh/uv/) for dependency management. The committed `backend/uv.lock` guarantees reproducible installs.
+
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -e .
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv sync
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Tests and lint:
+
+```bash
+cd backend
+uv run pytest
+uv run ruff check .
 ```
 
 ### Frontend
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
+```
+
+Lint, typecheck, and production build:
+
+```bash
+cd frontend
+npm run lint
+npm run typecheck
+npm run build
 ```
 
 ### Infrastructure
 
 ```bash
-podman compose -f infrastructure/containers/compose.yml up -d
+podman compose -f infrastructure/containers/compose.yml up --build
 ```
+
+The stack exposes the API on `http://localhost:8000` and the frontend on `http://localhost:3000`. Postgres credentials can be overridden with `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`.
 
 ## Safety and constraints
 

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./autoinvest.db"
     redis_url: str = "redis://localhost:6379/0"
     api_prefix: str = "/api/v1"
+    cors_origins: list[str] = ["http://localhost:3000"]
 
     model_config = SettingsConfigDict(
         env_file=".env",
