@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   description: "MVP platform for investments, market tracking, and paper trading.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="pt-BR"
